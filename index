@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Elektrik Saha Tespit V3.4</title>
+<style>
+:root{
+  --bg:#f3f5f7;--card:#fff;--ink:#17212b;--muted:#6b7280;--line:#dfe4ea;
+  --primary:#0f766e;--primary2:#115e59;--ok:#15803d;--warn:#d97706;--bad:#dc2626;
+  --soft:#ecfdf5;--shadow:0 8px 24px rgba(15,23,42,.08);--radius:16px
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);padding:12px 14px}
+.head{max-width:900px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-weight:800;font-size:18px}.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.progress{height:7px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:9px}.bar{height:100%;width:0;background:var(--primary);transition:.25s}
+main{max-width:900px;margin:auto;padding:14px 14px 120px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.sum{padding:14px;display:grid;grid-template-columns:1fr auto;gap:12px}.big{font-size:28px;font-weight:850}.muted{color:var(--muted);font-size:12px}
+.acc{border-top:1px solid var(--line)} .acc:first-child{border-top:0}
+.accbtn{width:100%;border:0;background:#fff;padding:16px;display:flex;align-items:center;gap:10px;text-align:left;font-size:15px;font-weight:800;cursor:pointer}
+.accbtn .ico{font-size:20px}.accbtn .state{margin-left:auto;font-size:18px}.accbtn .chev{font-size:12px;color:var(--muted);transition:.2s}.acc.open .chev{transform:rotate(90deg)}
+.body{display:none;padding:0 14px 16px}.acc.open .body{display:block}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+label{font-size:12px;font-weight:700;color:#374151;display:block;margin:2px 0 5px}
+input,select,textarea{width:100%;padding:11px 10px;border:1px solid #cfd6de;border-radius:10px;background:#fff;font:inherit;font-size:14px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px #99f6e455}
+textarea{min-height:70px;resize:vertical}.full{grid-column:1/-1}
+.btns{display:flex;flex-wrap:wrap;gap:8px}.btn{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 12px;font-weight:750;cursor:pointer}.btn.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 0 0 2px #0f766e22}.btn.radio::before{content:'○ ';font-weight:900}.btn.radio.active::before{content:'● '}.btn.ok.active{background:var(--ok);border-color:var(--ok)}.btn.warn.active{background:var(--warn);border-color:var(--warn)}.btn.bad.active{background:var(--bad);border-color:var(--bad)}
+.counter{display:flex;align-items:center;gap:8px}.counter button{width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#f8fafc;font-size:20px;font-weight:800}.counter input{text-align:center;max-width:80px;font-weight:800}
+.quick{background:linear-gradient(135deg,#115e59,#0f766e);color:#fff;border-radius:15px;padding:14px;margin-bottom:12px}.quick h3{margin:0 0 8px;font-size:15px}.quick .btn{background:#ffffff18;color:#fff;border-color:#ffffff45}.quick .btn.active{background:#fff;color:#115e59}
+.notice{font-size:12px;line-height:1.45}.row{border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:9px;background:#fafbfc}.rowhead{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px}.del{border:0;background:#fee2e2;color:#b91c1c;border-radius:8px;padding:6px 9px;font-weight:800}
+.photo{border:2px dashed #cbd5e1;border-radius:13px;padding:18px;text-align:center;background:#f8fafc;cursor:pointer}.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}.thumbs img{width:100%;aspect-ratio:1;border-radius:9px;object-fit:cover;border:1px solid var(--line)}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:9px;z-index:30}.bottomin{max-width:900px;margin:auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.bottom button{border:0;border-radius:12px;padding:13px 8px;font-weight:850;background:#0f766e;color:#fff}.bottom button:nth-child(2){background:#0f172a}.bottom button:nth-child(3){background:#e5e7eb;color:#111827}
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;z-index:50;font-size:13px}.toast.show{opacity:1}
+@media(max-width:620px){.grid,.g3{grid-template-columns:1fr}.full{grid-column:auto}.thumbs{grid-template-columns:repeat(3,1fr)}main{padding-left:9px;padding-right:9px}.sum{grid-template-columns:1fr}.big{font-size:25px}}
+
+.field-note{background:#f8fafc;border-left:4px solid #64748b;padding:10px 12px;border-radius:8px;margin-bottom:10px;color:#334155;font-size:13px;line-height:1.5}</style>
+</head>
+<body>
+<header><div class="head">
+<div><div class="brand">⚡ Elektrik Saha Tespit <span style="color:#0f766e">V3.4</span></div><div class="sub" id="projectTitle">Yeni saha tespiti</div></div>
+<div style="text-align:right"><b id="pct">0%</b><div class="muted">tamamlandı</div></div>
+</div><div class="progress"><div class="bar" id="bar"></div></div></header>
+<main>
+<div class="card sum">
+<div><div class="big" id="summaryText">Sahaya hazır</div><div class="muted">Amaç: hızlı saha tespiti → adet/durum → fotoğraf → sonraki keşif</div></div>
+<div class="btns">
+<button class="btn active" onclick="preset()">🏢 Tapu Standardı</button>
+<button class="btn" onclick="tour()">🧭 Saha Turu</button>
+</div>
+</div>
+
+<section class="card acc open" data-key="bina">
+<button class="accbtn" onclick="toggle(this)">🏢 <span>Bina / Mahal</span><span class="state">⚠️</span><span class="chev">▶</span></button>
+<div class="body"><div class="grid">
+<div><label>Müdürlük</label><input id="mudurluk" placeholder="Tapu Müdürlüğü"/></div>
+<div><label>İl / İlçe</label><input id="ililce" placeholder="Ankara / Altındağ"/></div>
+<div><label>Bina tipi</label><select id="binaTip"><option>Kaymakamlık / Hükümet Konağı</option><option>Müstakil bina</option><option>Diğer</option></select></div>
+<div><label>Kat</label><input id="kat" placeholder="1"/></div>
+<div><label>Mevcut personel</label><input id="personel" type="number" value="0"/></div>
+<div><label>Norm kadro</label><input id="norm" type="number" value="0"/></div>
+<div class="full"><label>Çalışma kapsamı</label><div class="btns" data-group="kapsam"><button class="btn" onclick="choose(this,'kapsam')">Kısmi değişiklik</button><button class="btn" onclick="choose(this,'kapsam')">Tüm alanlar</button><button class="btn" onclick="choose(this,'kapsam')">Sadece elektrik</button></div></div>
+<div class="full"><label>Mahal notu</label><textarea id="mahalNot" placeholder="Örn. Bütün alanlarda çalışma yapılacak."></textarea></div>
+</div></div></section>
+<section class="card acc" data-key="pano">
+<button class="accbtn" onclick="toggle(this)">⚡ <span>Ana Pano</span><span class="state">⚠️</span><span class="chev">▶</span></button>
+<div class="body"><div class="grid">
+<div><label>Pano durumu</label><div class="btns" data-group="panoDur"><button class="btn ok" onclick="choose(this,'panoDur')">İyi</button><button class="btn warn" onclick="choose(this,'panoDur')">Orta</button><button class="btn bad" onclick="choose(this,'panoDur')">Kötü</button></div></div>
+<div><label>Kullanılabilir?</label><div class="btns" data-group="panoUse"><button class="btn ok" onclick="choose(this,'panoUse')">Evet</button><button class="btn bad" onclick="choose(this,'panoUse')">Hayır</button></div></div>
+<div><label>Kaçak akım</label><div class="btns" data-group="rcd"><button class="btn" onclick="choose(this,'rcd')">Var</button><button class="btn" onclick="choose(this,'rcd')">Yok</button></div></div>
+<div><label>Parafudr / SPD</label><div class="btns" data-group="spd"><button class="btn" onclick="choose(this,'spd')">Var</button><button class="btn" onclick="choose(this,'spd')">Yok</button></div></div>
+<div><label>Topraklama bağlantısı</label><div class="btns" data-group="pe"><button class="btn" onclick="choose(this,'pe')">Uygun</button><button class="btn" onclick="choose(this,'pe')">Kontrol</button><button class="btn" onclick="choose(this,'pe')">Yok</button></div></div>
+<div><label>Ana şalter</label><input id="anaSalter" placeholder="Örn. 4P 100A TMŞ"/></div>
+<div><label>Sigorta sayısı</label><div class="counter"><button onclick="counter('sigorta',-1)">−</button><input id="sigorta" type="number" value="0"/><button onclick="counter('sigorta',1)">+</button></div></div>
+<div><label>Yedek modül</label><div class="counter"><button onclick="counter('yedek',-1)">−</button><input id="yedek" type="number" value="0"/><button onclick="counter('yedek',1)">+</button></div></div>
+<div class="full"><label>Pano notu</label><textarea id="panoNot" placeholder="Örn. Pano çalışır durumda, ancak SPD yok."></textarea></div>
+</div></div></section>
+<section class="card acc" data-key="priz">
+<button class="accbtn" onclick="toggle(this)">🔌 <span>Priz / UPS / Cihazlar</span><span class="state">⚠️</span><span class="chev">▶</span></button>
+<div class="body"><div class="full"><label>Priz/UPS malzeme genel adı</label><div class="btns" data-group="prizMalzeme"><button class="btn" onclick="choose(this,'prizMalzeme')" type="button">Gömme topraklı priz</button><button class="btn" onclick="choose(this,'prizMalzeme')" type="button">UPS priz</button><button class="btn" onclick="choose(this,'prizMalzeme')" type="button">Priz kutusu</button><button class="btn" onclick="choose(this,'prizMalzeme')" type="button">Otomatik sigorta</button><button class="btn" onclick="choose(this,'prizMalzeme')" type="button">Kaçak akım koruma şalteri</button><button class="btn" onclick="choose(this,'prizMalzeme')" type="button">UPS / Kesintisiz güç kaynağı</button><button class="btn" onclick="choose(this,'prizMalzeme')" type="button">Kablo kanalı</button><button class="btn" onclick="choose(this,'prizMalzeme')" type="button">Galvanizli çelik boru</button></div></div>
+<div class="grid">
+<div><label>UPS priz toplamı</label><div class="counter"><button onclick="counter('ups',-1)">−</button><input id="ups" type="number" value="0"/><button onclick="counter('ups',1)">+</button></div></div>
+<div><label>Şebeke priz toplamı</label><div class="counter"><button onclick="counter('sebeke',-1)">−</button><input id="sebeke" type="number" value="0"/><button onclick="counter('sebeke',1)">+</button></div></div>
+<div><label>Data priz toplamı</label><div class="counter"><button onclick="counter('data',-1)">−</button><input id="data" type="number" value="0"/><button onclick="counter('data',1)">+</button></div></div>
+<div><label>Boş priz grubu</label><div class="counter"><button onclick="counter('bosPriz',-1)">−</button><input id="bosPriz" type="number" value="0"/><button onclick="counter('bosPriz',1)">+</button></div></div>
+<div><label>Özel cihaz</label><input id="cihaz" placeholder="Fotokopi, klima, su sebili..."/></div>
+<div><label>Yeni hat gerekli?</label><div class="btns" data-group="yeniHat"><button class="btn" onclick="choose(this,'yeniHat')">Evet</button><button class="btn" onclick="choose(this,'yeniHat')">Hayır</button></div></div>
+<div class="full"><label>Priz notu</label><textarea id="prizNot" placeholder="Masalar değişecek, yeni priz grupları yapılacak..."></textarea></div>
+</div></div></section>
+<section class="card acc" data-key="aydinlatma">
+<button class="accbtn" onclick="toggle(this)">💡 <span>Aydınlatma</span><span class="state">⚠️</span><span class="chev">▶</span></button>
+<div class="body"><div class="full"><label>Malzeme genel adı (POZ karşılığı daha sonra seçilir)</label><div class="btns" data-group="aydMalzeme"><button class="btn" onclick="choose(this,'aydMalzeme')" type="button">LED lineer armatür</button><button class="btn" onclick="choose(this,'aydMalzeme')" type="button">LED panel</button><button class="btn" onclick="choose(this,'aydMalzeme')" type="button">LED downlight</button><button class="btn" onclick="choose(this,'aydMalzeme')" type="button">LED etanj armatür</button><button class="btn" onclick="choose(this,'aydMalzeme')" type="button">LED bar armatür</button><button class="btn" onclick="choose(this,'aydMalzeme')" type="button">LED aplik armatür</button><button class="btn" onclick="choose(this,'aydMalzeme')" type="button">Acil durum aydınlatma kiti</button><button class="btn" onclick="choose(this,'aydMalzeme')" type="button">Aydınlatma sensörü</button><button class="btn" onclick="choose(this,'aydMalzeme')" type="button">Güç kaynağı / LED sürücü</button></div></div><div class="grid">
+<div><label>Asma tavan</label><div class="btns" data-group="tavan"><button class="btn" onclick="choose(this,'tavan')">Mevcut</button><button class="btn" onclick="choose(this,'tavan')">Yeni</button></div></div>
+<div><label>Mevcut armatür</label><div class="counter"><button onclick="counter('mevcutArmat',-1)">−</button><input id="mevcutArmat" type="number" value="0"/><button onclick="counter('mevcutArmat',1)">+</button></div></div>
+<div><label>Yeni armatür</label><div class="counter"><button onclick="counter('yeniArmat',-1)">−</button><input id="yeniArmat" type="number" value="0"/><button onclick="counter('yeniArmat',1)">+</button></div></div>
+<div><label>LED etanj</label><div class="counter"><button onclick="counter('ledEtanj',-1)">−</button><input id="ledEtanj" type="number" value="0"/><button onclick="counter('ledEtanj',1)">+</button></div></div>
+<div class="full"><label>Hızlı armatür tipi</label><div class="btns"><button class="btn" onclick="addFixture('LED etanj')">+ LED etanj</button><button class="btn" onclick="addFixture('Downlight')">+ Downlight</button><button class="btn" onclick="addFixture('Panel LED')">+ Panel LED</button></div></div>
+<div class="full"><label>Aydınlatma notu</label><textarea id="aydNot" placeholder="Örn. mevcut armatürler demonte edilip yeni LED armatürler monte edilecek."></textarea></div>
+</div><div id="fixtureRows"></div></div></section>
+<section class="card acc" data-key="data">
+<button class="accbtn" onclick="toggle(this)">🌐 <span>Data / Rack / Patch Panel</span><span class="state">⚠️</span><span class="chev">▶</span></button>
+<div class="body"><div class="grid">
+<div><label>Rack kabinet</label><div class="btns" data-group="rack"><button class="btn" onclick="choose(this,'rack')">Var</button><button class="btn" onclick="choose(this,'rack')">Yok</button></div></div>
+<div><label>Patch panel</label><input id="patch" placeholder="Örn. 2 x 24 port"/></div>
+<div><label>Switch</label><input id="switch" placeholder="Örn. 48 port PoE"/></div>
+<div><label>UPS kabinet</label><div class="btns" data-group="rackups"><button class="btn" onclick="choose(this,'rackups')">Var/Uygun</button><button class="btn" onclick="choose(this,'rackups')">Yok</button></div></div>
+<div><label>Toplam data prizi</label><div class="counter"><button onclick="counter('dataTop',-1)">−</button><input id="dataTop" type="number" value="0"/><button onclick="counter('dataTop',1)">+</button></div></div>
+<div><label>Patch cord</label><div class="counter"><button onclick="counter('patchcord',-1)">−</button><input id="patchcord" type="number" value="0"/><button onclick="counter('patchcord',1)">+</button></div></div>
+<div class="full"><label>Data notu</label><textarea id="dataNot" placeholder="Patch panel port kapasitesi, switch port durumu, kablo güzergâhı vb."></textarea></div>
+</div></div></section>
+<section class="card acc" data-key="kamera">
+<button class="accbtn" onclick="toggle(this)">📹 <span>Kamera</span><span class="state">⚠️</span><span class="chev">▶</span></button>
+<div class="body"><div class="grid">
+<div><label>Mevcut kamera</label><div class="counter"><button onclick="counter('kameraMev',-1)">−</button><input id="kameraMev" type="number" value="0"/><button onclick="counter('kameraMev',1)">+</button></div></div>
+<div><label>Yeni kamera</label><div class="counter"><button onclick="counter('kameraYeni',-1)">−</button><input id="kameraYeni" type="number" value="0"/><button onclick="counter('kameraYeni',1)">+</button></div></div>
+<div class="full"><label>Hızlı kamera</label><div class="btns"><button class="btn" onclick="addCamera('Akit Odası')">+ Akit Odası</button><button class="btn" onclick="addCamera('Genel Alan')">+ Genel Alan</button><button class="btn" onclick="addCamera('Giriş')">+ Giriş</button></div></div>
+<div class="full"><label>Kamera notu</label><textarea id="kameraNot" placeholder="Örn. Akit odasına 1 adet kamera ve Cat6/PoE bağlantısı gerekli."></textarea></div>
+</div><div id="cameraRows"></div></div></section>
+<section class="card acc" data-key="yangin">
+<button class="accbtn" onclick="toggle(this)">🔥 <span>Yangın / Acil Aydınlatma</span><span class="state">⚠️</span><span class="chev">▶</span></button>
+<div class="body"><div class="field-note">Açıklama: Mevcut yangın algılama ve acil aydınlatma sisteminin durumu, eksik/arıza görülen noktalar, mevcut cihazlar ve yenilenmesi gereken hususlar burada belirtilir.</div><div class="grid">
+<div><label>Yangın algılama</label><div class="btns" data-group="yangin"><button class="btn" onclick="choose(this,'yangin')">Var</button><button class="btn" onclick="choose(this,'yangin')">Yok</button><button class="btn" onclick="choose(this,'yangin')">Kontrol</button></div></div>
+<div><label>Acil aydınlatma</label><div class="btns" data-group="acil"><button class="btn" onclick="choose(this,'acil')">Var</button><button class="btn" onclick="choose(this,'acil')">Yok</button></div></div>
+<div><label>Yönlendirme</label><div class="btns" data-group="yon"><button class="btn" onclick="choose(this,'yon')">Var</button><button class="btn" onclick="choose(this,'yon')">Yok</button></div></div>
+<div><label>Asansör beslemesi</label><div class="btns" data-group="asansor"><button class="btn" onclick="choose(this,'asansor')">Var</button><button class="btn" onclick="choose(this,'asansor')">Yok</button><button class="btn" onclick="choose(this,'asansor')">Kontrol</button></div></div>
+</div></div></section>
+<section class="card acc" data-key="toprak">
+<button class="accbtn" onclick="toggle(this)">🌍 <span>Topraklama</span><span class="state">⚠️</span><span class="chev">▶</span></button>
+<div class="body"><div class="grid">
+<div><label>Ölçüm yapıldı mı?</label><div class="btns" data-group="olcum"><button class="btn" onclick="choose(this,'olcum')">Evet</button><button class="btn" onclick="choose(this,'olcum')">Hayır</button></div></div>
+<div><label>Topraklama direnci (Ω)</label><input id="ohm" placeholder="Örn. 2.4" step="0.01" type="number"/></div>
+<div><label>PE/N durumu</label><div class="btns" data-group="pen"><button class="btn" onclick="choose(this,'pen')">Uygun</button><button class="btn" onclick="choose(this,'pen')">Kontrol</button></div></div>
+<div><label>Parafudr bağlantısı</label><div class="btns" data-group="spdtop"><button class="btn" onclick="choose(this,'spdtop')">Uygun</button><button class="btn" onclick="choose(this,'spdtop')">Yok</button></div></div>
+<div class="full"><label>Topraklama notu</label><textarea id="topNot"></textarea></div>
+</div></div></section>
+<section class="card acc" data-key="kesif">
+<button class="accbtn" onclick="toggle(this)">📐 <span>Keşif İçin Tespitler</span><span class="state">⚠️</span><span class="chev">▶</span></button>
+<div class="notice" style="margin-bottom:10px;padding:10px;border-radius:11px;background:#fff8e6;border:1px solid #f3d58b;color:#704d00">
+<b>📌 Sahada amaç:</b> Adetleri, mevcut durumu ve gerekli işi hızlıca tespit etmek. Kablo/boru/tava metrajı ölçülmediyse boş bırakılabilir; çizim üzerinden daha sonra tamamlanır.
+</div>
+<div class="body">
+<div class="quick" style="margin:0 0 10px">
+<h3>⚡ Keşif İçin Tespit Kalemi</h3>
+<div class="btns">
+<button class="btn" onclick="addItem('Kablo')">+ Kablo</button>
+<button class="btn" onclick="addItem('Boru')">+ Boru</button>
+<button class="btn" onclick="addItem('Kablo tavası')">+ Kablo tavası</button>
+<button class="btn" onclick="addItem('Priz')">+ Priz</button>
+<button class="btn" onclick="addItem('Armatür')">+ Armatür</button>
+<button class="btn" onclick="addItem('Pano')">+ Pano</button>
+<button class="btn" onclick="addItem('Data')">+ Data</button>
+<button class="btn" onclick="addItem('Kamera')">+ Kamera</button>
+</div>
+</div>
+<div class="grid">
+<div><label>Kablo metrajı (opsiyonel, m)</label><input id="kabloTop" placeholder="Çizimden sonra da girilebilir" step="0.1" type="number"/></div>
+<div><label>Boru metrajı (opsiyonel, m)</label><input id="boruTop" placeholder="Opsiyonel" step="0.1" type="number"/></div>
+<div><label>Tava metrajı (opsiyonel, m)</label><input id="tavaTop" placeholder="Opsiyonel" step="0.1" type="number"/></div>
+<div><label>Cat6 metrajı (opsiyonel, m)</label><input id="cat6Top" placeholder="Opsiyonel" step="0.1" type="number"/></div>
+</div>
+<div id="itemRows"></div>
+<div style="margin-top:12px;padding:12px;border-radius:12px;background:#f8fafc">
+<b>📋 Saha keşif notu</b>
+<textarea id="kesifNot" placeholder="Örn. Masalara asma tavandan galvanizli boru ile enerji ve data taşınacak. Kablo yaklaşık 185 m. 3x2,5 mm² halojensiz kablo kullanılacak." style="margin-top:7px"></textarea>
+</div>
+</div></section>
+<section class="card acc" data-key="foto">
+<button class="accbtn" onclick="toggle(this)">📷 <span>Fotoğraflar / Tespit İlişkisi</span><span class="state" id="photoState">0</span><span class="chev">▶</span></button>
+<div class="body">
+<div class="quick" style="margin:0 0 10px">
+<h3>Fotoğraf çekmeden önce neyi belgelediğini seç</h3>
+<div class="btns" id="photoContext">
+<button class="btn" onclick="setPhotoContext(this,'Genel Mahal')">🏢 Genel Mahal</button>
+<button class="btn" onclick="setPhotoContext(this,'Ana Pano')">⚡ Ana Pano</button>
+<button class="btn" onclick="setPhotoContext(this,'Priz / UPS')">🔌 Priz / UPS</button>
+<button class="btn" onclick="setPhotoContext(this,'Aydınlatma')">💡 Aydınlatma</button>
+<button class="btn" onclick="setPhotoContext(this,'Data / Rack')">🌐 Data / Rack</button>
+<button class="btn" onclick="setPhotoContext(this,'Kamera')">📹 Kamera</button>
+<button class="btn" onclick="setPhotoContext(this,'Yangın / Acil')">🔥 Yangın / Acil</button>
+<button class="btn" onclick="setPhotoContext(this,'Topraklama')">🌍 Topraklama</button>
+<button class="btn" onclick="setPhotoContext(this,'Keşif / Metraj')">📐 Keşif / Metraj</button>
+</div>
+<div class="muted" id="photoContextText" style="margin-top:8px">Fotoğraf bağlamı seçilmedi.</div>
+</div>
+<label class="photo">📷 Fotoğraf çek / galeriden seç
+<input accept="image/*" capture="environment" id="photos" multiple="" onchange="previewPhotos(this.files)" style="display:none" type="file"/>
+</label>
+<div class="grid" style="margin-top:10px">
+<div><label>Fotoğrafın konusu</label><input id="photoSubject" placeholder="Örn. Ana pano iç görünüşü"/></div>
+<div><label>Fotoğraf notu</label><input id="photoNote" placeholder="Örn. SPD yok, RCD mevcut"/></div>
+</div>
+<div class="thumbs" id="thumbs"></div>
+<div id="photoRows"></div>
+</div></section>
+<section class="card acc" data-key="son">
+<button class="accbtn" onclick="toggle(this)">✅ <span>Son Kontrol / Keşif Hazırlığı</span><span class="state">⚠️</span><span class="chev">▶</span></button>
+<div class="body"><div class="grid">
+<div class="full"><label>Kritik durumlar</label><div class="btns" data-group="kritik"><button class="btn ok" onclick="choose(this,'kritik')">Yok</button><button class="btn warn" onclick="choose(this,'kritik')">Var</button></div></div>
+<div class="full"><label>Keşif hazırlık</label><div class="btns" data-group="kesif"><button class="btn" onclick="choose(this,'kesif')">Eksik</button><button class="btn" onclick="choose(this,'kesif')">Hazır</button></div></div>
+<div class="full"><label>Genel saha notu</label><textarea id="genelNot" placeholder="Son değerlendirme, ölçülmesi gerekenler, ofiste POZ eşleştirme notları..."></textarea></div>
+</div>
+<div style="margin-top:10px;padding:12px;border-radius:12px;background:#f8fafc">
+<b>Otomatik kontrol</b>
+<ul class="muted" id="warnings"></ul>
+</div>
+</div></section>
+</main>
+<div class="bottom"><div class="bottomin">
+<button onclick="saveJSON()">💾 JSON KAYDET</button>
+<button onclick="window.print()">🖨️ YAZDIR / PDF</button>
+<button onclick="clearForm()">🗑️ TEMİZLE</button>
+</div></div>
+<div class="toast" id="toast"></div>
+<script>
+const S={groups:{}, photos:[], fixtures:[], cameras:[], items:[], photoContext:''};
+function toast(t){const x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),1800)}
+function toggle(btn){btn.closest('.acc').classList.toggle('open');update()}
+function choose(el,g){document.querySelectorAll('[data-group="'+g+'"] .btn').forEach(b=>{b.classList.remove('active');b.classList.add('radio')});el.classList.add('radio');el.classList.add('active');S.groups[g]=el.textContent.trim();update()}
+function counter(id,n){const e=document.getElementById(id);e.value=Math.max(0,(parseInt(e.value)||0)+n);update()}
+function val(id){const e=document.getElementById(id);return e?e.value:''}
+function quickDesk(n){
+  ['ups','sebeke','data','dataTop'].forEach(id=>{const e=document.getElementById(id);e.value=(parseInt(e.value)||0)+n});
+  toast(n+' masa grubu: +'+n+' UPS, +'+n+' şebeke, +'+n+' data');
+  update()
+}
+function syncDerivedCounts(){
+  const cameraDetailTotal=S.cameras.reduce((a,x)=>a+(parseInt(x.quantity)||0),0);
+  const el=document.getElementById('kameraYeni');
+  if(cameraDetailTotal>0) el.value=cameraDetailTotal;
+}
+function addFixture(type){
+  S.fixtures.push({type,quantity:1});
+  document.getElementById('ledEtanj').value=(type==='LED etanj'?(parseInt(val('ledEtanj'))||0)+1:parseInt(val('ledEtanj'))||0);
+  renderFixtures();update()
+}
+function renderFixtures(){document.getElementById('fixtureRows').innerHTML=S.fixtures.map((x,i)=>`<div class="row"><div class="rowhead">💡 ${x.type}<button class="del" onclick="S.fixtures.splice(${i},1);renderFixtures();update()">Sil</button></div><div class="grid" style="margin-top:8px"><div><label>Adet</label><input type="number" min="1" value="${x.quantity}" onchange="S.fixtures[${i}].quantity=this.value;update()"></div><div><label>Özellik</label><input placeholder="IP65, lm, lm/W..." onchange="S.fixtures[${i}].spec=this.value"></div></div></div>`).join('')}
+function addCamera(place){
+  S.cameras.push({place,type:'IP kamera',quantity:1});
+  document.getElementById('kameraYeni').value=(parseInt(val('kameraYeni'))||0)+1;
+  renderCameras();toast(place+' için kamera eklendi');update()
+}
+function renderCameras(){document.getElementById('cameraRows').innerHTML=S.cameras.map((x,i)=>`<div class="row"><div class="rowhead">📹 ${x.place}<button class="del" onclick="S.cameras.splice(${i},1);renderCameras();update()">Sil</button></div><div class="grid" style="margin-top:8px"><div><label>Kablo</label><input placeholder="Cat6 / Cat6A" onchange="S.cameras[${i}].cable=this.value;update()"></div><div><label>Güzergâh / yaklaşık m</label><input placeholder="Örn. 25 m (opsiyonel)" onchange="S.cameras[${i}].length=this.value;update()"></div></div></div>`).join('')}
+function previewPhotos(files){
+  [...files].forEach(f=>{
+    const item={name:f.name,category:S.photoContext||'Belirtilmemiş',subject:val('photoSubject'),note:val('photoNote')};
+    S.photos.push(item);
+    const r=new FileReader();
+    r.onload=e=>{
+      const wrap=document.createElement('div');
+      wrap.innerHTML='<img src="'+e.target.result+'">';
+      document.getElementById('thumbs').appendChild(wrap);
+    };
+    r.readAsDataURL(f);
+  });
+  document.getElementById('photoState').textContent=S.photos.length;
+  renderPhotoRows(); toast(S.photos.length+' fotoğraf kaydedildi'); update()
+}
+function renderPhotoRows(){
+  document.getElementById('photoRows').innerHTML=S.photos.map((x,i)=>`
+  <div class="row">
+    <div class="rowhead">📷 FOTO-${i+1} — ${x.category}
+      <button class="del" onclick="S.photos.splice(${i},1);document.getElementById('photoState').textContent=S.photos.length;renderPhotoRows();update()">Sil</button>
+    </div>
+    <div class="muted" style="margin-top:5px">${x.subject||'Konu belirtilmedi'} ${x.note?' — '+x.note:''}</div>
+  </div>`).join('');
+}
+function preset(){
+  document.getElementById('mudurluk').value='Tapu Müdürlüğü';
+  toast('Tapu Müdürlüğü saha standardı seçildi')
+}
+function tour(){
+  document.querySelectorAll('.acc').forEach(a=>a.classList.remove('open'));
+  const keys=['bina','pano','priz','aydinlatma','data','kamera','yangin','toprak','foto','son'];
+  let i=0;document.querySelector('.acc[data-key="'+keys[i]+'"]').classList.add('open');toast('Saha turu başladı');
+  window.nextTour=()=>{document.querySelectorAll('.acc').forEach(a=>a.classList.remove('open'));i=Math.min(i+1,keys.length-1);document.querySelector('.acc[data-key="'+keys[i]+'"]').classList.add('open')};
+}
+function update(){
+  syncDerivedCounts();
+  const fields=['mudurluk','ililce','kat','mahalNot','anaSalter','panoNot','prizNot','aydNot','patch','switch','dataNot','kameraNot','ohm','topNot','genelNot','kesifNot'];
+  let filled=fields.filter(id=>val(id).trim()).length;
+  const chosen=Object.keys(S.groups).length;
+  const counts=['ups','sebeke','data','dataTop','yeniArmat','ledEtanj','kameraYeni'].filter(id=>(parseInt(val(id))||0)>0).length;
+  const photo=S.photos.length>0?1:0;
+  let p=Math.min(100,Math.round((filled+chosen+counts+photo)/30*100));
+  document.getElementById('pct').textContent=p+'%';document.getElementById('bar').style.width=p+'%';
+  const title=val('mudurluk')||'Yeni saha tespiti';document.getElementById('projectTitle').textContent=title;
+  document.getElementById('summaryText').textContent=p<35?'Sahaya hazır':p<75?'Tespit devam ediyor':'Keşif için toparlanıyor';
+  const w=[];
+  if(!S.groups.panoUse)w.push('Pano kullanılabilirlik durumu seçilmedi.');
+  if(!S.groups.pe&&!val('ohm'))w.push('Topraklama durumu veya ölçüm değeri girilmedi.');
+  if((parseInt(val('kameraYeni'))||0)>0 && !S.cameras.length)w.push('Yeni kamera adedi var fakat kamera noktası tanımlanmadı.');
+  if((parseInt(val('data'))||0)>0 && !val('patch'))w.push('Data prizi var; patch panel kapasitesi kontrol edilmeli.');
+  if((parseInt(val('ledEtanj'))||0)>0 && !S.groups.tavan)w.push('LED armatür var; asma tavan durumu seçilmedi.');
+  if(!val('mudurluk')||!val('ililce'))w.push('Müdürlük ve il/ilçe bilgisi henüz girilmedi.');
+  if(!Object.keys(S.groups).length)w.push('En az bir durum seçimi yapılması önerilir.');
+  if(S.photos.length>0 && S.photos.some(x=>x.category==='Belirtilmemiş'))w.push('Bazı fotoğraflar herhangi bir tespit başlığına bağlanmamış.');
+  document.getElementById('warnings').innerHTML=w.length?w.map(x=>'<li>'+x+'</li>').join(''):'<li>Belirgin eksik yok. Saha tespiti tamam. Sonraki aşamada POZ ve çizim metrajı yapılabilir.</li>';
+}
+
+function setPhotoContext(el,ctx){
+  document.querySelectorAll('#photoContext .btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); S.photoContext=ctx;
+  document.getElementById('photoContextText').textContent='Seçili: '+ctx;
+}
+function addItem(type){
+  S.items.push({type,quantity:1,unit:type==='Kablo'||type==='Boru'||type==='Kablo tavası'||type==='Data'?'m':'adet',spec:'',route:'',note:''});
+  renderItems(); update(); toast(type+' keşif kalemi eklendi');
+}
+function renderItems(){
+  document.getElementById('itemRows').innerHTML=S.items.map((x,i)=>`
+  <div class="row">
+    <div class="rowhead">📐 ${x.type}<button class="del" onclick="S.items.splice(${i},1);renderItems();update()">Sil</button></div>
+    <div class="grid" style="margin-top:8px">
+      <div><label>Miktar</label><input type="number" step="0.1" min="0" value="${x.quantity}" onchange="S.items[${i}].quantity=this.value"></div>
+      <div><label>Birim</label><select onchange="S.items[${i}].unit=this.value">
+        <option ${x.unit==='m'?'selected':''}>m</option><option ${x.unit==='adet'?'selected':''}>adet</option><option ${x.unit==='kg'?'selected':''}>kg</option><option ${x.unit==='set'?'selected':''}>set</option><option ${x.unit==='takım'?'selected':''}>takım</option>
+      </select></div>
+      <div class="full"><label>Malzeme / teknik özellik</label><input value="${x.spec||''}" placeholder="Örn. 3x2,5 mm² halojensiz Cu kablo / Cat6 UTP / galvanizli boru Ø25 / IP65 LED 1800 lm" onchange="S.items[${i}].spec=this.value"></div>
+      <div><label>Güzergâh</label><input value="${x.route||''}" placeholder="Örn. pano → servis alanı" onchange="S.items[${i}].route=this.value"></div>
+      <div><label>Poz için özel not</label><input value="${x.note||''}" placeholder="Örn. demontaj + montaj" onchange="S.items[${i}].note=this.value"></div>
+    </div>
+  </div>`).join('');
+}
+function collect(){
+ const o={schema:'Elektrik Saha Tespit V3.4',date:new Date().toISOString(),project:{mudurluk:val('mudurluk'),ililce:val('ililce'),binaTip:val('binaTip'),kat:val('kat'),personel:val('personel'),norm:val('norm')},groups:S.groups,counts:{ups:val('ups'),sebeke:val('sebeke'),data:val('data'),bosPriz:val('bosPriz'),sigorta:val('sigorta'),yedek:val('yedek'),mevcutArmat:val('mevcutArmat'),yeniArmat:val('yeniArmat'),ledEtanj:val('ledEtanj'),dataTop:val('dataTop'),patchcord:val('patchcord'),kameraMev:val('kameraMev'),kameraYeni:val('kameraYeni')},panel:{anaSalter:val('anaSalter'),not:val('panoNot')},notes:{mahal:val('mahalNot'),priz:val('prizNot'),aydinlatma:val('aydNot'),data:val('dataNot'),kamera:val('kameraNot'),toprak:val('topNot'),genel:val('genelNot'),kesif:val('kesifNot')},metraj:{kablo:val('kabloTop'),boru:val('boruTop'),tava:val('tavaTop'),cat6:val('cat6Top')},kesifItems:S.items,fixtures:S.fixtures,cameras:S.cameras,photos:S.photos,workflow:{saha:'adet + durum + fotoğraf',metraj:'opsiyonel / çizim üzerinden',poz:'sonraki keşif aşaması'}};return o
+}
+function saveJSON(){const blob=new Blob([JSON.stringify(collect(),null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='saha_tespit_v3_2.json';a.click();toast('JSON kaydedildi')}
+function clearForm(){if(!confirm('Tüm saha verileri silinsin mi?'))return;location.reload()}
+document.querySelectorAll('input,select,textarea').forEach(e=>e.addEventListener('input',update));
+update();
+</script>
+</body>
+</html>
